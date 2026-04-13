@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-04-13T00:00:00Z",
+  "dataset_sha256": "755ee4ebc72931d926b7567e22bae9d71d471999416415cb1c919f51195c8d3e",
+  "sources": {
+    "bea_nipa_table_1_14": {
+      "vintage": "2026-03-27",
+      "url": "https://apps.bea.gov/"
+    },
+    "fed_z1": {
+      "vintage": "2026-03-13",
+      "release_quarter": "2025Q4",
+      "url": "https://www.federalreserve.gov/releases/z1/"
+    }
+  }
+}

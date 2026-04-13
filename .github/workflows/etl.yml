@@ -1,0 +1,58 @@
+name: ETL
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Sync dependencies
+        working-directory: pipeline
+        run: uv sync --extra dev
+      - name: Probe vintages
+        id: probe
+        continue-on-error: true
+        working-directory: pipeline
+        env:
+          BEA_API_KEY: ${{ secrets.BEA_API_KEY }}
+        run: uv run ahp-pipeline check-vintage
+      - name: Stop when no new vintage exists
+        if: steps.probe.outcome == 'success'
+        run: echo "No new vintage."
+      - name: Run ETL
+        if: steps.probe.outcome == 'failure'
+        working-directory: pipeline
+        env:
+          BEA_API_KEY: ${{ secrets.BEA_API_KEY }}
+        run: uv run ahp-pipeline run
+      - name: Validate committed artifact
+        if: steps.probe.outcome == 'failure'
+        working-directory: pipeline
+        run: uv run ahp-pipeline validate
+      - name: Commit refreshed data
+        if: steps.probe.outcome == 'failure'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- data/v1; then
+            exit 0
+          fi
+          FED_VINTAGE="$(python3 -c "import json; print(json.load(open('data/v1/manifest.json'))['sources']['fed_z1']['vintage'])")"
+          BEA_VINTAGE="$(python3 -c "import json; print(json.load(open('data/v1/manifest.json'))['sources']['bea_nipa_table_1_14']['vintage'])")"
+          git add data/v1
+          git commit -m "data: refresh to Z.1 vintage ${FED_VINTAGE} / NIPA vintage ${BEA_VINTAGE} [skip ci]"
+          git push
+

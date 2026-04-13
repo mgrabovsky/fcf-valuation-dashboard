@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-04-13T00:00:00Z",
+  "sources": {
+    "bea_nipa_table_1_14": {
+      "vintage": "2026-03-27",
+      "url": "https://apps.bea.gov/"
+    },
+    "fed_z1": {
+      "vintage": "2026-03-13",
+      "release_quarter": "2025Q4",
+      "url": "https://www.federalreserve.gov/releases/z1/"
+    }
+  },
+  "frequency": "quarterly",
+  "periods": [
+    "2024Q1",
+    "2024Q2",
+    "2024Q3",
+    "2024Q4",
+    "2025Q1",
+    "2025Q2",
+    "2025Q3",
+    "2025Q4"
+  ],
+  "series": {
+    "gva": {
+      "label": "Corporate gross value added",
+      "description": "Corporate gross value added.",
+      "unit": "level",
+      "values": [100, 101, 102, 103, 104, 105, 106, 107]
+    },
+    "labor_compensation": {
+      "label": "Labor compensation",
+      "description": "Compensation of employees for the corporate sector.",
+      "unit": "level",
+      "values": [56, 56.5, 57, 57.4, 57.9, 58.3, 58.8, 59.2]
+    },
+    "taxes_total": {
+      "label": "Total taxes",
+      "description": "Indirect business taxes, transfers, and corporate taxes.",
+      "unit": "level",
+      "values": [10, 10.1, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6]
+    },
+    "gross_investment": {
+      "label": "Gross investment",
+      "description": "Corporate gross fixed investment.",
+      "unit": "level",
+      "values": [12, 12.1, 12.2, 12.3, 12.4, 12.6, 12.7, 12.8]
+    },
+    "cfc": {
+      "label": "Consumption of fixed capital",
+      "description": "Corporate consumption of fixed capital.",
+      "unit": "level",
+      "values": [8.2, 8.3, 8.4, 8.5, 8.5, 8.6, 8.7, 8.8]
+    },
+    "net_investment": {
+      "label": "Net investment",
+      "description": "Gross investment minus consumption of fixed capital.",
+      "unit": "level",
+      "values": [3.8, 3.8, 3.8, 3.8, 3.9, 4, 4, 4]
+    },
+    "fcf": {
+      "label": "Free cash flow",
+      "description": "Gross value added less labor, taxes, and gross investment.",
+      "unit": "level",
+      "values": [22, 22.3, 22.7, 23.1, 23.4, 23.7, 24, 24.4]
+    },
+    "earnings": {
+      "label": "Earnings",
+      "description": "Free cash flow plus net investment.",
+      "unit": "level",
+      "values": [25.8, 26.1, 26.5, 26.9, 27.3, 27.7, 28, 28.4]
+    },
+    "enterprise_value": {
+      "label": "Enterprise value",
+      "description": "Corporate enterprise value following the AHP definition.",
+      "unit": "level",
+      "values": [700, 705, 710, 716, 721, 727, 733, 739]
+    },
+    "capital_replacement_cost": {
+      "label": "Capital replacement cost",
+      "description": "Current-cost replacement value of fixed corporate assets.",
+      "unit": "level",
+      "values": [302, 304, 306, 309, 312, 315, 318, 321]
+    },
+    "fcf_yield": {
+      "label": "Free cash flow yield",
+      "description": "Free cash flow divided by enterprise value.",
+      "unit": "ratio",
+      "values": [0.031428571429, 0.031631205674, 0.031971830986, 0.032262569832, 0.032454923717, 0.032599724897, 0.032742155525, 0.03301759134]
+    },
+    "earnings_yield": {
+      "label": "Earnings yield",
+      "description": "Earnings divided by enterprise value.",
+      "unit": "ratio",
+      "values": [0.036857142857, 0.037021276596, 0.037323943662, 0.037569832402, 0.03786407767, 0.038101788171, 0.038199181446, 0.038430311231]
+    },
+    "ev_gva": {
+      "label": "EV / GVA",
+      "description": "Enterprise value divided by gross value added.",
+      "unit": "ratio",
+      "values": [7, 6.980198019802, 6.960784313725, 6.95145631068, 6.932692307692, 6.92380952381, 6.915094339623, 6.906542056075]
+    },
+    "k_gva": {
+      "label": "K / GVA",
+      "description": "Capital replacement cost divided by gross value added.",
+      "unit": "ratio",
+      "values": [3.02, 3.009900990099, 3, 3, 3, 3, 3, 3]
+    },
+    "fcf_gva": {
+      "label": "FCF / GVA",
+      "description": "Free cash flow divided by gross value added.",
+      "unit": "ratio",
+      "values": [0.22, 0.220792079208, 0.222549019608, 0.22427184466, 0.225, 0.225714285714, 0.22641509434, 0.228037383178]
+    },
+    "labor_share": {
+      "label": "Labor share",
+      "description": "Labor compensation divided by gross value added.",
+      "unit": "ratio",
+      "values": [0.56, 0.559405940594, 0.558823529412, 0.557281553398, 0.556730769231, 0.555238095238, 0.554716981132, 0.553271028037]
+    },
+    "net_inv_v": {
+      "label": "Net investment / V",
+      "description": "Net investment divided by enterprise value.",
+      "unit": "ratio",
+      "values": [0.005428571429, 0.005390070922, 0.005352112676, 0.00530726257, 0.005409153953, 0.005502063274, 0.005457025921, 0.005412719892]
+    },
+    "net_inv_k": {
+      "label": "Net investment / K",
+      "description": "Net investment divided by capital replacement cost.",
+      "unit": "ratio",
+      "values": [0.012582781457, 0.0125, 0.012418300654, 0.012297734628, 0.0125, 0.012698412698, 0.012578616352, 0.01246105919]
+    },
+    "k_v": {
+      "label": "K / V",
+      "description": "Capital replacement cost divided by enterprise value.",
+      "unit": "ratio",
+      "values": [0.431428571429, 0.431205673759, 0.430985915493, 0.43156424581, 0.432732316227, 0.433287482806, 0.433833560709, 0.434370771313]
+    },
+    "payout_ratio": {
+      "label": "Payout ratio",
+      "description": "Free cash flow divided by earnings.",
+      "unit": "ratio",
+      "values": [0.852713178295, 0.854406130268, 0.856603773585, 0.85873605948, 0.857142857143, 0.85559566787, 0.857142857143, 0.859154929577]
+    }
+  },
+  "stats": {
+    "fcf_yield": {
+      "mean": 0.032263571675,
+      "std": 0.000515924965,
+      "min": 0.031428571429,
+      "max": 0.03301759134
+    },
+    "earnings_yield": {
+      "mean": 0.037670944254,
+      "std": 0.000535440652,
+      "min": 0.036857142857,
+      "max": 0.038430311231
+    },
+    "ev_gva": {
+      "mean": 6.946322108926,
+      "std": 0.030648456066,
+      "min": 6.906542056075,
+      "max": 7
+    },
+    "k_gva": {
+      "mean": 3.003737623762,
+      "std": 0.006948659527,
+      "min": 3,
+      "max": 3.02
+    },
+    "fcf_gva": {
+      "mean": 0.224097463339,
+      "std": 0.002609260568,
+      "min": 0.22,
+      "max": 0.228037383178
+    },
+    "labor_share": {
+      "mean": 0.55693348713,
+      "std": 0.00224866324,
+      "min": 0.553271028037,
+      "max": 0.56
+    },
+    "net_inv_v": {
+      "mean": 0.00540737258,
+      "std": 0.000056222725,
+      "min": 0.00530726257,
+      "max": 0.005502063274
+    },
+    "net_inv_k": {
+      "mean": 0.012504613122,
+      "std": 0.000112546159,
+      "min": 0.012297734628,
+      "max": 0.012698412698
+    },
+    "k_v": {
+      "mean": 0.432426067193,
+      "std": 0.001219624347,
+      "min": 0.430985915493,
+      "max": 0.434370771313
+    },
+    "payout_ratio": {
+      "mean": 0.85643693167,
+      "std": 0.002012343702,
+      "min": 0.852713178295,
+      "max": 0.859154929577
+    }
+  }
+}
+

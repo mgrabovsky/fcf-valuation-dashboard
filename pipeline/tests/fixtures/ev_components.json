@@ -1,0 +1,23 @@
+[
+  {
+    "period": "2024Q1",
+    "market_equity_nfc": 250.0,
+    "market_equity_fb": 110.0,
+    "liabilities": 520.0,
+    "financial_assets": 240.0,
+    "closely_held_imputation": 30.0,
+    "fdi_inward_equity": 40.0,
+    "fdi_outward_equity": 10.0
+  },
+  {
+    "period": "2024Q2",
+    "market_equity_nfc": 252.0,
+    "market_equity_fb": 111.0,
+    "liabilities": 525.0,
+    "financial_assets": 243.0,
+    "closely_held_imputation": 30.0,
+    "fdi_inward_equity": 40.0,
+    "fdi_outward_equity": 10.0
+  }
+]
+

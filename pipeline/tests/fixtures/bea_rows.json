@@ -1,0 +1,13 @@
+[
+  { "period": "2024Q1", "line_code": "1", "value": 100.0 },
+  { "period": "2024Q1", "line_code": "2", "value": 56.0 },
+  { "period": "2024Q1", "line_code": "3", "value": 10.0 },
+  { "period": "2024Q1", "line_code": "4", "value": 12.0 },
+  { "period": "2024Q1", "line_code": "5", "value": 8.2 },
+  { "period": "2024Q2", "line_code": "1", "value": 101.0 },
+  { "period": "2024Q2", "line_code": "2", "value": 56.5 },
+  { "period": "2024Q2", "line_code": "3", "value": 10.1 },
+  { "period": "2024Q2", "line_code": "4", "value": 12.1 },
+  { "period": "2024Q2", "line_code": "5", "value": 8.3 }
+]
+
