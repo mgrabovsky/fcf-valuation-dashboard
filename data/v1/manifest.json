@@ -1,16 +1,16 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-04-13T00:00:00Z",
-  "dataset_sha256": "755ee4ebc72931d926b7567e22bae9d71d471999416415cb1c919f51195c8d3e",
+  "generated_at": "2026-04-13T22:12:12Z",
+  "dataset_sha256": "9f8c402005154e6aba217cb8953a4d32a035a5f074117278d825ab828613ce7e",
   "sources": {
     "bea_nipa_table_1_14": {
-      "vintage": "2026-03-27",
-      "url": "https://apps.bea.gov/"
+      "vintage": "2026-04-13",
+      "url": "https://apps.bea.gov/api/data?UserID=C2153B52-B7CE-41F1-A0AD-C88006EE4B6D&method=GetData&datasetname=NIPA&TableName=T11400&Frequency=Q&Year=X&ResultFormat=JSON"
     },
     "fed_z1": {
-      "vintage": "2026-03-13",
-      "release_quarter": "2025Q4",
-      "url": "https://www.federalreserve.gov/releases/z1/"
+      "vintage": "2026-03-19",
+      "release_quarter": "2026Q1",
+      "url": "https://www.federalreserve.gov/releases/z1/20260319/z1_csv_files.zip"
     }
   }
 }
