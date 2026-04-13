@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-04-13T22:12:12Z",
-  "dataset_sha256": "9f8c402005154e6aba217cb8953a4d32a035a5f074117278d825ab828613ce7e",
+  "generated_at": "2026-04-13T22:15:10Z",
+  "dataset_sha256": "bbc35b075a24eb02aeef34b05174b3e2dcf825f76f4da0bf46498f55d8594542",
   "sources": {
     "bea_nipa_table_1_14": {
       "vintage": "2026-04-13",
