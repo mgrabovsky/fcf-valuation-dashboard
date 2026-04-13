@@ -13,22 +13,27 @@ from ahp_pipeline.manifest import compare_vintages, load_manifest
 from ahp_pipeline.models import BeaSource, Dataset, FedSource, Sources
 from ahp_pipeline.output import validate_against_schema, write_dataset
 from ahp_pipeline.sources.bea import BeaClient
-from ahp_pipeline.sources.fed_z1 import FedZ1Client
+from ahp_pipeline.sources.fed_z1 import FedZ1Client, FedZ1NormalizedData
 from ahp_pipeline.transform.capital import compute_capital
 from ahp_pipeline.transform.enterprise_value import compute_enterprise_value
-from ahp_pipeline.transform.flows import compute_flows
+from ahp_pipeline.transform.flows import compute_flows, finalize_flows
 from ahp_pipeline.transform.yields import compute_ratios
 from ahp_pipeline.validate import validate_dataset
 
 
 def _build_quarterly_panel(
-    bea_frame: pl.DataFrame, z1_tables: dict[str, pl.DataFrame]
+    bea_frame: pl.DataFrame, fed_data: FedZ1NormalizedData
 ) -> pl.DataFrame:
     flows = compute_flows(bea_frame)
-    ev_input = z1_tables["B.1"]
-    capital_input = z1_tables["L.4"]
-    panel = flows.join(compute_enterprise_value(ev_input), on="period", how="inner")
-    panel = panel.join(compute_capital(capital_input), on="period", how="inner")
+    flows = finalize_flows(
+        flows.join(fed_data.gross_investment, on="period", how="inner")
+    )
+    panel = flows.join(
+        compute_enterprise_value(fed_data.enterprise_value_components),
+        on="period",
+        how="inner",
+    )
+    panel = panel.join(compute_capital(fed_data.capital), on="period", how="inner")
     return compute_ratios(panel).sort("period")
 
 
@@ -38,7 +43,7 @@ def run_pipeline() -> int:
     fed_client = FedZ1Client()
     bea = bea_client.fetch_table()
     fed = fed_client.fetch_bundle()
-    panel = _build_quarterly_panel(bea.data, fed.tables)
+    panel = _build_quarterly_panel(bea.data, fed.data)
     sources = Sources(
         bea_nipa_table_1_14=BeaSource(vintage=bea.vintage, url=bea.url),
         fed_z1=FedSource(

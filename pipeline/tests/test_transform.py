@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from ahp_pipeline.transform.capital import compute_capital
 from ahp_pipeline.transform.enterprise_value import compute_enterprise_value
-from ahp_pipeline.transform.flows import compute_flows
+from ahp_pipeline.transform.flows import compute_flows, finalize_flows
 from ahp_pipeline.transform.yields import compute_ratios
 
 
-def test_compute_flows(bea_rows) -> None:
-    frame = compute_flows(bea_rows)
+def test_compute_flows(bea_rows, gross_investment_rows) -> None:
+    frame = compute_flows(bea_rows).join(gross_investment_rows, on="period")
+    frame = finalize_flows(frame)
     first = frame.row(0, named=True)
     assert first["net_investment"] == 3.8
     assert first["fcf"] == 22.0
@@ -24,8 +25,11 @@ def test_compute_capital(capital_rows) -> None:
     assert frame.columns == ["period", "capital_replacement_cost"]
 
 
-def test_compute_ratios(bea_rows, ev_components, capital_rows) -> None:
-    panel = compute_flows(bea_rows)
+def test_compute_ratios(
+    bea_rows, gross_investment_rows, ev_components, capital_rows
+) -> None:
+    panel = compute_flows(bea_rows).join(gross_investment_rows, on="period")
+    panel = finalize_flows(panel)
     panel = panel.join(compute_enterprise_value(ev_components), on="period")
     panel = panel.join(compute_capital(capital_rows), on="period")
     ratios = compute_ratios(panel)

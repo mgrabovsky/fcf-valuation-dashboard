@@ -20,6 +20,11 @@ def ev_components() -> pl.DataFrame:
 
 
 @pytest.fixture
+def gross_investment_rows() -> pl.DataFrame:
+    return pl.read_json(FIXTURES_DIR / "gross_investment_rows.json")
+
+
+@pytest.fixture
 def capital_rows() -> pl.DataFrame:
     return pl.read_json(FIXTURES_DIR / "capital_rows.json")
 

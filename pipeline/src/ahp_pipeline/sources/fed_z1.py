@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import re
 import zipfile
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -30,11 +31,10 @@ PAGE_RELEASE_PATTERN = re.compile(
 
 
 @dataclass(frozen=True)
-class FedZ1SourceResult:
-    tables: dict[str, pl.DataFrame]
-    vintage: str
-    release_quarter: str
-    url: str
+class FedZ1NormalizedData:
+    enterprise_value_components: pl.DataFrame
+    capital: pl.DataFrame
+    gross_investment: pl.DataFrame
 
 
 @dataclass(frozen=True)
@@ -42,6 +42,14 @@ class FedZ1ReleaseMetadata:
     csv_url: str
     vintage: str
     release_quarter: str
+
+
+@dataclass(frozen=True)
+class FedZ1SourceResult:
+    data: FedZ1NormalizedData
+    vintage: str
+    release_quarter: str
+    url: str
 
 
 def parse_release_quarter(name: str) -> str | None:
@@ -64,7 +72,9 @@ def parse_release_metadata(html: str) -> FedZ1ReleaseMetadata:
         message = "Could not find the current Z.1 release date and quarter on the release page."
         raise ValueError(message)
 
-    release_date = datetime.strptime(release_match.group("date"), "%B %d, %Y").date().isoformat()
+    release_date = (
+        datetime.strptime(release_match.group("date"), "%B %d, %Y").date().isoformat()
+    )
     release_quarter = release_match.group("quarter").replace(":", "")
     return FedZ1ReleaseMetadata(
         csv_url=str(httpx.URL(FED_Z1_RELEASE_PAGE_URL).join(csv_match.group("path"))),
@@ -75,26 +85,116 @@ def parse_release_metadata(html: str) -> FedZ1ReleaseMetadata:
 
 def parse_table_csv(content: bytes) -> pl.DataFrame:
     """Parse a single CSV payload from the Z.1 bundle."""
-    return pl.read_csv(io.BytesIO(content))
+    return pl.read_csv(io.BytesIO(content), null_values=["", "NA", "ND"])
 
 
-def extract_required_tables(bundle: bytes) -> tuple[dict[str, pl.DataFrame], str]:
-    """Extract the Z.1 tables required by the v1 pipeline."""
-    tables: dict[str, pl.DataFrame] = {}
+def _normalize_periods(frame: pl.DataFrame) -> pl.DataFrame:
+    if "date" not in frame.columns:
+        message = "The Z.1 CSV is missing its date column."
+        raise ValueError(message)
+    return frame.with_columns(pl.col("date").str.replace(":", "").alias("period"))
+
+
+def _require_columns(
+    frame: pl.DataFrame, columns: tuple[str, ...], table_name: str
+) -> None:
+    missing = [column for column in columns if column not in frame.columns]
+    if missing:
+        message = f"{table_name} is missing required columns: {', '.join(missing)}"
+        raise ValueError(message)
+
+
+def _select_series(
+    frame: pl.DataFrame,
+    *,
+    table_name: str,
+    series: Mapping[str, str],
+) -> pl.DataFrame:
+    required = tuple(series.values())
+    _require_columns(frame, required, table_name)
+    return frame.select(
+        pl.col("period"),
+        *(
+            pl.col(source_column).cast(pl.Float64).alias(target_column)
+            for target_column, source_column in series.items()
+        ),
+    )
+
+
+def extract_required_data(bundle: bytes) -> tuple[FedZ1NormalizedData, str]:
+    """Extract the normalized quarterly Z.1 inputs required by the v1 pipeline."""
     release_quarter: str | None = None
     with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
         for name in archive.namelist():
             if release_quarter is None:
                 release_quarter = parse_release_quarter(name)
-            match = TABLE_PATTERN.search(name)
-            if not match:
-                continue
-            table_name = match.group(1).upper()
-            with archive.open(name) as member:
-                tables[table_name] = parse_table_csv(member.read())
+
+        b103 = _normalize_periods(parse_table_csv(archive.read("csv/b103.csv")))
+        l224 = _normalize_periods(parse_table_csv(archive.read("csv/l224.csv")))
+        l4s = _normalize_periods(parse_table_csv(archive.read("csv/l4s.csv")))
+        all_sectors_flows_q = _normalize_periods(
+            parse_table_csv(archive.read("csv/all_sectors_flows_q.csv"))
+        )
+
+    # Live Z.1 CSVs expose a clean nonfinancial-corporate balance sheet in B.103.
+    # L.224 splits public and closely held NFC equity, which lets the EV transform
+    # keep the closely held component explicit instead of hiding it in total equity.
+    # The nearest financial-business equity line in the bulk CSV is "domestic
+    # financial sectors" (`LM793164105.Q`), which is broader than the BEA
+    # corporate-business scope used elsewhere in the pipeline, so v1 leaves the
+    # financial-business market-equity add-on at zero rather than overstate EV.
+    enterprise_value_components = (
+        _select_series(
+            l224,
+            table_name="L.224",
+            series={
+                "market_equity_nfc": "LM103164115.Q",
+                "closely_held_imputation": "LM103164125.Q",
+            },
+        )
+        .join(
+            _select_series(
+                b103,
+                table_name="B.103",
+                series={
+                    "liabilities": "FL104190005.Q",
+                    "financial_assets": "FL104090005.Q",
+                    "fdi_inward_equity": "LM103192105.Q",
+                    "fdi_outward_equity": "LM103092105.Q",
+                },
+            ),
+            on="period",
+            how="inner",
+        )
+        .with_columns(pl.lit(0.0).alias("market_equity_fb"))
+    )
+
+    capital = _select_series(
+        l4s,
+        table_name="L.4.s",
+        series={"capital_replacement_cost": "FL105015085.Q"},
+    )
+    # The live quarterly matrix carries the broad nonfinancial-business fixed-
+    # investment aggregate (`FA145013005`) even when the narrower table-specific
+    # CSVs only expose NFC detail. That broader line keeps the v1 flow panel on
+    # the paper's historical sanity range while remaining a published quarterly
+    # Z.1 series, so it is the current gross-investment input.
+    gross_investment = _select_series(
+        all_sectors_flows_q,
+        table_name="all_sectors_flows_q",
+        series={"gross_investment": "FA145013005"},
+    )
+
     if release_quarter is None:
         release_quarter = f"{datetime.now(UTC).year}Q1"
-    return tables, release_quarter
+    return (
+        FedZ1NormalizedData(
+            enterprise_value_components=enterprise_value_components,
+            capital=capital,
+            gross_investment=gross_investment,
+        ),
+        release_quarter,
+    )
 
 
 class FedZ1Client:
@@ -120,9 +220,9 @@ class FedZ1Client:
             response.raise_for_status()
             bundle = response.content
             Path(cache_file).write_bytes(bundle)
-        tables, release_quarter = extract_required_tables(bundle)
+        data, release_quarter = extract_required_data(bundle)
         return FedZ1SourceResult(
-            tables=tables,
+            data=data,
             vintage=metadata.vintage,
             release_quarter=release_quarter or metadata.release_quarter,
             url=metadata.csv_url,
