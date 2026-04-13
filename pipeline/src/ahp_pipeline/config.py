@@ -16,7 +16,7 @@ MANIFEST_PATH = DATA_DIR / "manifest.json"
 
 BEA_API_URL = "https://apps.bea.gov/api/data"
 BEA_TABLE_NAME = "T11400"
-FED_Z1_ZIP_URL = "https://www.federalreserve.gov/releases/z1/current/z1_csv_files.zip"
+FED_Z1_RELEASE_PAGE_URL = "https://www.federalreserve.gov/releases/z1/"
 
 
 def require_bea_api_key() -> str:

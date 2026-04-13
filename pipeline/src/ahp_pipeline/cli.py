@@ -64,14 +64,14 @@ def check_vintage() -> int:
     bea_client = BeaClient(require_bea_api_key())
     fed_client = FedZ1Client()
     bea = bea_client.fetch_table()
-    fed = fed_client.fetch_bundle()
+    fed = fed_client.fetch_release_metadata()
     existing = load_manifest(MANIFEST_PATH)
     current_sources = Sources(
         bea_nipa_table_1_14=BeaSource(vintage=bea.vintage, url=bea.url),
         fed_z1=FedSource(
             vintage=fed.vintage,
             release_quarter=fed.release_quarter,
-            url=fed.url,
+            url=fed.csv_url,
         ),
     )
     comparison = compare_vintages(existing, current_sources)

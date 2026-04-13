@@ -6,7 +6,11 @@ import zipfile
 import polars as pl
 
 from ahp_pipeline.sources.bea import parse_bea_response
-from ahp_pipeline.sources.fed_z1 import extract_required_tables, parse_release_quarter
+from ahp_pipeline.sources.fed_z1 import (
+    extract_required_tables,
+    parse_release_metadata,
+    parse_release_quarter,
+)
 
 
 def test_parse_bea_response_keeps_quarterly_rows() -> None:
@@ -42,3 +46,18 @@ def test_extract_required_tables_reads_bundle() -> None:
 def test_parse_release_quarter() -> None:
     assert parse_release_quarter("Z1_2025Q4_B.1.csv") == "2025Q4"
     assert parse_release_quarter("no-quarter-here") is None
+
+
+def test_parse_release_metadata() -> None:
+    html = """
+    <html>
+      <body>
+        <p>Release Date: March 19, 2026 (2025:Q4 Release)</p>
+        <a href="/releases/z1/20260319/z1_csv_files.zip">CSV</a>
+      </body>
+    </html>
+    """
+    metadata = parse_release_metadata(html)
+    assert metadata.vintage == "2026-03-19"
+    assert metadata.release_quarter == "2025Q4"
+    assert metadata.csv_url == "https://www.federalreserve.gov/releases/z1/20260319/z1_csv_files.zip"
